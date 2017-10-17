@@ -1,0 +1,29 @@
+#!/bin/bash
+IFS=:
+
+## A list of paths to test
+## ":" delimited
+PATHS=/home/e1ts7sx/gits:/home/rsigler/gits
+
+## Test function
+function findIn() {
+    for i in $1/* ; do 
+        if [ -d "$i/.git" ]; then
+            c=`git -C $i status --porcelain | wc -l`
+            if [ $c -gt 0 ]; then
+                echo "$i"
+            fi
+        fi
+    done
+}
+
+## Loop through paths
+for dir in $PATHS; do
+    if [ -d "$dir" ]; then
+        findIn $dir
+    fi
+done
+
+
+
+

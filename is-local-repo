@@ -1,0 +1,28 @@
+#!/bin/bash
+IFS=:
+
+## A list of paths to test
+## ":" delimited
+PATHS=/home/e1ts7sx/gits:/home/rsigler/gits
+
+if [ -z $1 ]; then
+    echo "Param 1 should be a repo"
+    exit 2
+fi
+
+repo="$1"
+
+function findIn() {
+    testcase="$1/$repo/.git"
+    if [ -d "$testcase" ]; then
+        exit 0
+    fi
+}
+
+## Loop through paths
+for dir in $PATHS; do
+    if [ -d "$dir" ]; then
+        findIn $dir
+    fi
+done
+exit 1

@@ -1,0 +1,29 @@
+#!/usr/bin/python
+
+import boto3
+from os import listdir
+from os.path import isdir, abspath
+
+localPath = ["/home/rsigler/gits", "/home/e1ts7sx/gits"]
+
+
+
+session = boto3.session.Session(profile_name="code-commit")
+client = session.client('codecommit')
+repoList = client.list_repositories()
+
+repoNames = []
+
+for repo in repoList["repositories"]:
+    repoNames.append(repo["repositoryName"])
+
+#print(repoNames)
+
+for dirname in localPath:
+    if isdir(dirname):
+        for entity in listdir(dirname):
+            path = abspath("{}/{}".format(dirname, entity))
+            if isdir(path):
+                if entity not in repoNames:
+                    print(path)
+

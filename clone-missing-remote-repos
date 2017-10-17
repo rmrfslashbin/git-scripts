@@ -1,0 +1,3 @@
+#!/bin/bash
+
+eval "$(execpath="$HOME/gits/git-scripts"; $execpath/search | while read repo; do $execpath/is-local-repo $repo ; if [ $? -ne 0 ]; then $execpath/git-clone $repo; fi; done)"

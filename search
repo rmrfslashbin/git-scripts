@@ -1,0 +1,16 @@
+#!/usr/bin/python
+
+import boto3
+import pprint
+
+#session = boto3.session.Session(profile_name="code-commit")
+session = boto3.session.Session()
+client = session.client('codecommit')
+repoList = client.list_repositories()
+
+pp = pprint.PrettyPrinter(indent=4)
+
+for repo in repoList["repositories"]:
+    repoName = repo["repositoryName"]
+    print(repoName)
+
