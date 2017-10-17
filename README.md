@@ -16,4 +16,12 @@ A collection of scripts to support git repos.
 Boto3 is required... ```pip install boto3```
 
 # Uses
-'execpath="/path/to/git-scripts"; $execpath/search | while read repo; do $execpath/is-local-repo $repo ; if [ $? -ne 0 ]; then $execpath/git-clone $repo; fi; done'
+```
+execpath="/path/to/git-scripts"
+$execpath/search | while read repo; do 
+    $execpath/is-local-repo $repo
+    if [ $? -ne 0 ]; then 
+        $execpath/git-clone $repo
+    fi
+done
+```
