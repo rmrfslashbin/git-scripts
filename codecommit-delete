@@ -14,7 +14,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ## Bail out of param 1 is not set
-if [ -x $1 ]; then
+if [ -z "$1" ]; then
     echo "Missing repo name as param 1"
     exit 1
 fi
