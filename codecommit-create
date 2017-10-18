@@ -1,0 +1,54 @@
+#!/bin/bash
+
+## Configurables
+
+## AWS git remote name
+REMOTE="aws"
+
+## Make sure jq is installed
+JQ=$(which jq)
+if [ $? -ne 0 ]; then
+    echo "jq is not installed"
+    echo "https://stedolan.github.io/jq/"
+    exit 1
+fi
+
+## Make sure awscli is installed
+AWS=$(which aws)
+if [ $? -ne 0 ]; then
+    echo "awscli is not installed"
+    echo "http://docs.aws.amazon.com/cli/latest/userguide/installing.html"
+    exit 1
+fi
+
+## Make sure git is installed
+GIT=$(which git)
+if [ $? -ne 0 ]; then
+    echo "git is not installed"
+    exit 1
+fi
+
+## Bail out of param 1 is not set
+if [ -x $1 ]; then
+    echo "Missing repo name as param 1"
+    exit 1
+fi
+
+## Try to create the git repo
+json=$($AWS codecommit create-repository --repository-name $1)
+if [ $? -ne 0 ]; then
+    # If there's a failure, echo the output and bail.
+    echo $json
+    exit 1
+fi
+
+## Otherwise... fetch the SSH URI and add it to the git repo's remotes
+uri=$(echo $json | $JQ '.repositoryMetadata.cloneUrlSsh' | tr -d '"')
+[ -d .git ] || $GIT rev-parse --git-dir > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Current dir is not a git repo. Here's your SSH URI..."
+    echo $uri
+else 
+    $GIT remote add $REMOTE $uri
+    $GIT remote -v
+fi

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+## Configurables
+
+## AWS git remote name
+REMOTE="aws"
+
+## Make sure awscli is installed
+AWS=$(which aws)
+if [ $? -ne 0 ]; then
+    echo "awscli is not installed"
+    echo "http://docs.aws.amazon.com/cli/latest/userguide/installing.html"
+    exit 1
+fi
+
+## Bail out of param 1 is not set
+if [ -x $1 ]; then
+    echo "Missing repo name as param 1"
+    exit 1
+fi
+
+echo "*** CAUTION ***"
+echo "You are about to delete AWS Code Commit Repo *** $1 ***"
+echo 
+read -p "Are you sure you want to do this... (y) to continue, anything else to bail out:  " confirm
+case $confirm in
+    [Yy] ) $AWS codecommit delete-repository --repository-name $1;;
+    * ) echo "User canceled"; exit 1;;
+esac
+
