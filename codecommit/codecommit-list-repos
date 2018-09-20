@@ -3,7 +3,6 @@
 import boto3
 import pprint
 
-#session = boto3.session.Session(profile_name="code-commit")
 session = boto3.session.Session()
 client = session.client('codecommit')
 repoList = client.list_repositories()
