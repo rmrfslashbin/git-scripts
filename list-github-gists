@@ -3,9 +3,6 @@
 from github import Github
 from os import environ
 
-# First create a Github instance:
-
-# or using an access token
 try:
     t = environ['GITHUB_TOKEN']
 except KeyError:
