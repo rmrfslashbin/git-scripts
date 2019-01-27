@@ -12,4 +12,3 @@ pp = pprint.PrettyPrinter(indent=4)
 for repo in repoList["repositories"]:
     repoName = repo["repositoryName"]
     print(repoName)
-
