@@ -12,14 +12,15 @@ g = Github(t)
 repoName = raw_input("Name of repo to delete: ")
 try:
     r = g.get_repo(repoName)
-except:
+except BaseException:
     raise
 
-confirm = raw_input("Enter YES to Confirm you intend to delete ({}): ".format(repoName))
+confirm = raw_input(
+    "Enter YES to Confirm you intend to delete ({}): ".format(repoName))
 if confirm != "YES":
-    raise SystemExit ("User did not respond YES")
+    raise SystemExit("User did not respond YES")
 
 try:
     r.delete()
-except:
+except BaseException:
     raise

@@ -13,4 +13,4 @@ except KeyError:
 g = Github(t)
 
 for repo in g.get_user().get_repos():
-    print (repo.name)
+    print(repo.name)
