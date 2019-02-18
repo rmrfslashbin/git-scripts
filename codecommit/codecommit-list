@@ -2,63 +2,76 @@
 
 import boto3
 import argparse
+import pickle
+from os.path import dirname, realpath
 
 def run():
     parser = argparse.ArgumentParser(description="List AWS Code Commit repos")
-    parser.add_argument("--fast", "-f", action="store_true", help="Don't fetch repo descriptions")
+    parser.add_argument("--refresh", "-r", action="store_true", help="Refresh cache")
     args = parser.parse_args()
 
-    # New session
-    session = boto3.session.Session()
-    client = session.client('codecommit')
+    ROOT_PATH = dirname(realpath(__file__))
+    DATA_FILE = "{}/repolist.pickle".format(ROOT_PATH)
 
-    # Get a full repo list
-    repoList = client.list_repositories()
+    try:
+        with open(DATA_FILE, "rb") as f:
+            cachedData = pickle.load(f)
+    except FileNotFoundError:
+        print("Datafile ({}) not found. Forcing cache refresh".format(DATA_FILE))
+        cachedData = None
+        args.refresh = True
 
-    ## If fast...
-    if args.fast:
-        repos = repoList["repositories"]
-        rlist = []
-        for r in repos:
-            rlist.append(r["repositoryName"])
-        for r in sorted(rlist): print(r)
-        raise SystemExit
+    if args.refresh:
+        print("Refreshing local cache")
+        cachedData = []
+        # New session
+        session = boto3.session.Session()
+        client = session.client('codecommit')
 
-    # Store the list of repos in a dict of lists
-    repos = {}
+        # Get a full repo list
+        repoList = client.list_repositories()
 
-    # batch_get_repositories limits requests to
-    # 25 repos... so, batch the repo list in
-    # groups of 25.
-    batch=0
-    count=0
-    repos[batch] = []
+        # Store the list of repos in a dict of lists
+        repos = {}
 
-    # Loop through the list of repos
-    for repo in repoList["repositories"]:
-        count += 1
-        repos[batch].append(repo["repositoryName"])
-        # if 25 are in a batch, rest and incr
-        if count > 24:
-            batch += 1
-            count = 0
-            repos[batch] = []
+        # batch_get_repositories limits requests to
+        # 25 repos... so, batch the repo list in
+        # groups of 25.
+        batch=0
+        count=0
+        repos[batch] = []
+
+        # Loop through the list of repos
+        for repo in repoList["repositories"]:
+            count += 1
+            repos[batch].append(repo["repositoryName"])
+            # if 25 are in a batch, rest and incr
+            if count > 24:
+                batch += 1
+                count = 0
+                repos[batch] = []
 
 
-    # Get batch (25 at a time) data for the repos
-    repositories = {} 
-    for batch in repos:
-        r = client.batch_get_repositories(repositoryNames=repos[batch])
-        for repo in r["repositories"]:
-            # stash in a dict
-            repositories[repo["repositoryName"]] = repo
+        # Get batch (25 at a time) data for the repos
+        repositories = {} 
+        for batch in repos:
+            r = client.batch_get_repositories(repositoryNames=repos[batch])
+            for repo in r["repositories"]:
+                cachedData.append(repo)
+                # stash in a dict
+                repositories[repo["repositoryName"]] = repo
+        # Save the data file
+        with open(DATA_FILE, "wb") as f:
+            pickle.dump(cachedData, f)
+            print("Wrote datafile: {}".format(DATA_FILE))
 
     # Loop through the dict of data ...
-    for repo in sorted(repositories):
-        repoData = repositories[repo]
-
+    repoList = {}
+    for repo in cachedData:
+        repoList[repo.get("repositoryName")] = repo
+    for repo in sorted(repoList):
         # ... and print
-        descr = repoData.get("repositoryDescription")
+        descr = repoList[repo].get("repositoryDescription")
         print("{0:35s} {1}".format(repo, descr))
 
 if __name__ == "__main__":
