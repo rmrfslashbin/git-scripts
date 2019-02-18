@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+
+import boto3
+import argparse
+
+def run():
+    parser = argparse.ArgumentParser(description="List AWS Code Commit repos")
+    parser.add_argument("--fast", "-f", action="store_true", help="Don't fetch repo descriptions")
+    args = parser.parse_args()
+
+    # New session
+    session = boto3.session.Session()
+    client = session.client('codecommit')
+
+    # Get a full repo list
+    repoList = client.list_repositories()
+
+    ## If fast...
+    if args.fast:
+        repos = repoList["repositories"]
+        rlist = []
+        for r in repos:
+            rlist.append(r["repositoryName"])
+        for r in sorted(rlist): print(r)
+        raise SystemExit
+
+    # Store the list of repos in a dict of lists
+    repos = {}
+
+    # batch_get_repositories limits requests to
+    # 25 repos... so, batch the repo list in
+    # groups of 25.
+    batch=0
+    count=0
+    repos[batch] = []
+
+    # Loop through the list of repos
+    for repo in repoList["repositories"]:
+        count += 1
+        repos[batch].append(repo["repositoryName"])
+        # if 25 are in a batch, rest and incr
+        if count > 24:
+            batch += 1
+            count = 0
+            repos[batch] = []
+
+
+    # Get batch (25 at a time) data for the repos
+    repositories = {} 
+    for batch in repos:
+        r = client.batch_get_repositories(repositoryNames=repos[batch])
+        for repo in r["repositories"]:
+            # stash in a dict
+            repositories[repo["repositoryName"]] = repo
+
+    # Loop through the dict of data ...
+    for repo in sorted(repositories):
+        repoData = repositories[repo]
+
+        # ... and print
+        descr = repoData.get("repositoryDescription")
+        print("{0:35s} {1}".format(repo, descr))
+
+if __name__ == "__main__":
+    run()

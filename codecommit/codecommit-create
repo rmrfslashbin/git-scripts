@@ -1,54 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-## Configurables
+import boto3
+import argparse
 
-## AWS git remote name
-REMOTE="aws"
+def run():
+    # Set up the arg parser. Require repo name  and description
+    parser = argparse.ArgumentParser(description='Create AWS Code Commit repo')
+    parser.add_argument("--repo", "-r", required=True, type=str, help="Repo name")
+    parser.add_argument("--descr", "-d", required=True, type=str, help="Repo description")
+    args = parser.parse_args()
 
-## Make sure jq is installed
-JQ=$(which jq)
-if [ $? -ne 0 ]; then
-    echo "jq is not installed"
-    echo "https://stedolan.github.io/jq/"
-    exit 1
-fi
+    # set up the AWS session
+    session = boto3.session.Session()
+    client = session.client('codecommit')
 
-## Make sure awscli is installed
-AWS=$(which aws)
-if [ $? -ne 0 ]; then
-    echo "awscli is not installed"
-    echo "http://docs.aws.amazon.com/cli/latest/userguide/installing.html"
-    exit 1
-fi
+    # Create the repo
+    repo = client.create_repository(repositoryName=args.repo, repositoryDescription=args.descr)
+    # Get the metadata for the new repo
+    repoData = repo["repositoryMetadata"]
+    # Print out some useful stuff
+    print("Name:   ", repoData["repositoryName"])
+    print("Descr:  ", repoData["repositoryDescription"])
+    print("SSH Url:", repoData["cloneUrlSsh"])
 
-## Make sure git is installed
-GIT=$(which git)
-if [ $? -ne 0 ]; then
-    echo "git is not installed"
-    exit 1
-fi
-
-## Bail out of param 1 is not set
-if [ -z $1 ]; then
-    echo "Missing repo name as param 1"
-    exit 1
-fi
-
-## Try to create the git repo
-json=$($AWS codecommit create-repository --repository-name $1)
-if [ $? -ne 0 ]; then
-    # If there's a failure, echo the output and bail.
-    echo $json
-    exit 1
-fi
-
-## Otherwise... fetch the SSH URI and add it to the git repo's remotes
-uri=$(echo $json | $JQ '.repositoryMetadata.cloneUrlSsh' | tr -d '"')
-[ -d .git ] || $GIT rev-parse --git-dir > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "Current dir is not a git repo. Here's your SSH URI..."
-    echo $uri
-else 
-    $GIT remote add $REMOTE $uri
-    $GIT remote -v
-fi
+if __name__ == "__main__":
+    run()

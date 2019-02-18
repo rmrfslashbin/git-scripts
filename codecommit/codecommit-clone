@@ -1,0 +1,19 @@
+#!/usr/bin/python
+
+import boto3
+import argparse
+
+def run():
+    session = boto3.session.Session()
+    client = session.client('codecommit')
+
+    parser = argparse.ArgumentParser(description="Get SSH URL for a repo")
+    parser.add_argument("--repo", "-r", required=True, type=str, help="Repo name")
+    args = parser.parse_args()
+
+    repoData = client.get_repository(repositoryName=args.repo)
+    sshURL = repoData["repositoryMetadata"]["cloneUrlSsh"]
+    print("git clone {}".format(sshURL))
+
+if __name__ == "__main__":
+    run()
