@@ -3,6 +3,7 @@
 import boto3
 import argparse
 import pickle
+import lzma
 from os.path import dirname, realpath
 
 def run():
@@ -11,10 +12,10 @@ def run():
     args = parser.parse_args()
 
     ROOT_PATH = dirname(realpath(__file__))
-    DATA_FILE = "{}/repolist.pickle".format(ROOT_PATH)
+    DATA_FILE = "{}/repolist.pickle.xz".format(ROOT_PATH)
 
     try:
-        with open(DATA_FILE, "rb") as f:
+        with lzma.open(DATA_FILE, "rb") as f:
             cachedData = pickle.load(f)
     except FileNotFoundError:
         print("Datafile ({}) not found. Forcing cache refresh".format(DATA_FILE))
@@ -61,7 +62,7 @@ def run():
                 # stash in a dict
                 repositories[repo["repositoryName"]] = repo
         # Save the data file
-        with open(DATA_FILE, "wb") as f:
+        with lzma.open(DATA_FILE, "wb") as f:
             pickle.dump(cachedData, f)
             print("Wrote datafile: {}".format(DATA_FILE))
 
