@@ -73,7 +73,10 @@ def run():
     for repo in sorted(repoList):
         # ... and print
         descr = repoList[repo].get("repositoryDescription")
-        print("{0:35s} {1}".format(repo, descr))
+        lastModDate = repoList[repo].get("lastModifiedDate")
+        if lastModDate:
+            lastModDate = lastModDate.strftime("%Y.%m.%d %H:%M:%S")
+        print("{0:35s} {1} {2}".format(repo, lastModDate, descr))
 
 if __name__ == "__main__":
     run()

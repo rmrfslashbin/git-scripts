@@ -6,7 +6,7 @@ import argparse
 def run():
     # Set up the arg parser. Require repo name  and description
     parser = argparse.ArgumentParser(description='Delete AWS Code Commit repo')
-    parser.add_argument("--repo", "-r", required=True, type=str, help="Repo name")
+    parser.add_argument("--repo", "-r", required=True, type=str, nargs="+", help="Repo name")
     parser.add_argument("--confirm", "-c", required=True, action="store_true", help="Confirm repo deletion")
     args = parser.parse_args()
 
@@ -15,8 +15,9 @@ def run():
     client = session.client('codecommit')
 
     # Delete the repo
-    client.delete_repository(repositoryName=args.repo)
-    print("{} deleted".format(args.repo))
+    for repo in args.repo:
+        client.delete_repository(repositoryName=repo)
+        print("{} deleted".format(repo))
 
 if __name__ == "__main__":
     run()
