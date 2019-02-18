@@ -56,6 +56,8 @@ def run():
         # Get batch (25 at a time) data for the repos
         repositories = {} 
         for batch in repos:
+            if len(repos[batch]) < 1:
+                continue
             r = client.batch_get_repositories(repositoryNames=repos[batch])
             for repo in r["repositories"]:
                 cachedData.append(repo)
