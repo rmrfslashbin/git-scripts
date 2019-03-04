@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+from azure.devops.connection import Connection
+from msrest.authentication import BasicAuthentication
+import os
+
+try:
+    TFS_TOKEN=os.environ["TFS_TOKEN"]
+    TFS_ORG_URL=os.environ["TFS_ORG_URL"]
+except KeyError as e:
+   print(f"Env var not defined {e}")
+   print("export TFS_TOKEN and TFS_ORG_URL")
+   raise SystemExit
+except:
+    raise
+
+# Create a connection to the org
+credentials = BasicAuthentication('', TFS_TOKEN)
+connection = Connection(base_url=TFS_ORG_URL, creds=credentials)
+
+# Get a client (the "core" client provides access to projects, teams, etc)
+core_client = connection.clients.get_core_client()
+git_client = connection.clients.get_git_client()
+
+# Get the list of projects in the org
+projects = core_client.get_projects()
+
+# Show details about each project in the console
+for project in projects:
+    print(f"{project.id} {project.name}")
