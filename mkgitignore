@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+import requests
+
+URLS = [
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/Archives.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/Backup.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/Diff.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/GPG.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/Linux.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/Patch.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/SublimeText.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/Vim.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Global/VirtualEnv.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/Sass.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/community/Python/JupyterNotebooks.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/community/Linux/Snap.gitignore",
+    "https://raw.githubusercontent.com/github/gitignore/master/community/OpenSSL.gitignore"
+]
+
+with open("gitignore.new", "w") as f:
+    for url in URLS:
+        print(url)
+        f.write(f"## {url}")
+        data = requests.get(url)
+        f.write(data.text)
+print("Wrote gitignore.new")
+
