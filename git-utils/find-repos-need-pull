@@ -1,31 +1,28 @@
 #!/bin/bash
 
 if [ -z "$GIT_DIRS" ]; then
-  echo "GIT_DIRS is not set"
-  echo "EXPORT GIT_DIRS= /space/delimited /list/of/dirs"
-  exit 1
+    echo "GIT_DIRS is not set"
+    echo "EXPORT GIT_DIRS= /space/delimited /list/of/dirs"
+    exit 1
 fi
 
 ## Test function
 function findIn() {
-  for i in $(find "$1" -type d -name *.git); do
-    git -C $i remote update > /dev/null
-    c=$(git -C $(dirname $i) status -uno --porcelain | wc -l)
-    if [ $c -gt 0 ]; then
-      echo $(dirname $i)
-    fi
-  done
+    for i in $(find "$1" -type d -name *.git); do
+        git -C $i remote update > /dev/null
+        c=$(git -C $(dirname $i) status -uno --porcelain | wc -l)
+        if [ $c -gt 0 ]; then
+            echo $(dirname $i)
+        fi
+    done
 }
 
 
 ## Loop through paths
 for dir in $GIT_DIRS; do
-  if [ -d "$dir" ]; then
-    echo "Looking in ($dir) for git repos which need a pull."  
-    findIn $dir
-  fi
+    if [ -d "$dir" ]; then
+        echo "Looking in ($dir) for git repos which need a pull."  
+        findIn $dir
+    fi
 done
-
-
-
 

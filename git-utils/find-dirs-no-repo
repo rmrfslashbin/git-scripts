@@ -9,10 +9,16 @@ fi
 
 ## Test function
 function findIn() {
-    for i in $(find "$1" -type d -name *.git); do
-        c=`git -C $(dirname $i) status --porcelain | wc -l`
-        if [ $c -gt 0 ]; then
-            echo $(dirname $i)
+    for i in $(find "$1" -maxdepth 1 -type d); do
+        
+        # Skip root
+        if [ "$i" == "$1" ]; then
+            continue
+        fi
+
+        # Look for a ".git" dir
+        if [ ! -d "$i/.git" ]; then
+            echo $i
         fi
     done
 }
