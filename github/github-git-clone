@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [ -z "$1" ]; then
-  echo "Param 1 should be a repo name"
-  exit 1
-fi
-
-git clone git@github.com:rmrfslashbin/$1.git

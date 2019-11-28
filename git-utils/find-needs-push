@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if [ -z "$GIT_DIRS" ]; then
+    echo "GIT_DIRS is not set"
+    echo "EXPORT GIT_DIRS= /space/delimited /list/of/dirs"
+    exit 1
+fi
+
+
+## Test function
+function findIn() {
+    for i in $(find "$1" -type d -name *.git); do
+        
+        # Skip root
+        if [ "$i" == "$1" ]; then
+            continue
+        fi
+
+        # Look for a ".git" dir
+        ret=$(git -C $(dirname $i) push -n --porcelain)
+        if [[ ! $ret =~ "up to date" ]]; then
+            echo "$i needs a push"
+        fi
+    done
+}
+
+
+## Loop through paths
+for dir in $GIT_DIRS; do
+    if [ -d "$dir" ]; then
+        findIn $dir
+    fi
+done
+
