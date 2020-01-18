@@ -16,11 +16,7 @@ A [Personal Access Token](https://help.github.com/articles/creating-a-personal-a
 - github-list-repos :: Lists a user's repos
 
 # AWS Codecommit
-These commands require a configured [AWS CLI](https://aws.amazon.com/cli/).
-- codecommit-clone      :: Generate a ```git clone``` command for a given repo
-- codecommit-create     :: Creates a repo
-- codecommit-delete     :: Deletes a user's repo
-- codecommit-list-repos :: Lists a user's repos
+- Deprecated in favor of: https://github.com/rmrfslashbin/aws-cli-tools.
 
 # Azure DevOps Repos
 Azure DevOps provides TFS style git repos. A personal access token is requred to use these scripts.
