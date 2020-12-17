@@ -2,7 +2,7 @@
 
 if [ -z "$GIT_DIRS" ]; then
     echo "GIT_DIRS is not set"
-    echo "EXPORT GIT_DIRS= /space/delimited /list/of/dirs"
+    echo "export GIT_DIRS=/space/delimited /list/of/dirs"
     exit 1
 fi
 
